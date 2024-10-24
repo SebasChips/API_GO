@@ -8,8 +8,6 @@ This is a Go API project for managing scholar control of students. It uses MySQL
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Contribution](#contribution)
-- [License](#license)
 
 ## Features
 
