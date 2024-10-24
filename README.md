@@ -23,12 +23,18 @@ This is a Go API project for managing scholar control of students. It uses MySQL
 
 To install and run this project, follow these steps:
 
-1. Clone the repository: git clone https://github.com/SebasChips/API_GO.git
-2. Navigate to the project directory: cd API_GO
-3. Build the Docker image for MySQL: docker build -t mi_mysql:latest .
-4. docker run --name contenedor_mysql -d -p 3306:3306 mi_mysql:latest
-5. Navigate to the cmd directory: cd cmd
-6. Run the Go application: go run main.go
+1. Clone the repository: 
+git clone https://github.com/SebasChips/API_GO.git
+2. Navigate to the project directory: 
+cd API_GO
+3. Build the Docker image for MySQL: 
+docker build -t mi_mysql:latest .
+4. Run the MySQL container:
+docker run --name contenedor_mysql -d -p 3306:3306 mi_mysql:latest
+5. Navigate to the cmd directory:
+cd cmd
+6. Run the Go application:
+go run main.go
 
 ## Usage
 
