@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materias</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+
+    <header>
+        <a href="alumnos.html">Alumnos</a>
+        <a href="materias.html">Materias</a>
+        <a href="calificaciones.html">Calificaciones</a>
+    
+    </header>
+
+    <div class="container">
+
+      <div class="card">
+          <h1>Crear Materia</h1>
+          <label for="nombre">Nombre:</label>
+          <input type="text" id="nombre" placeholder="Nombre de la materia">
+          <button id="crearMateria">Crear</button>
+          </div>
+
+      <div class="card">
+          <h1>Eliminar Materia</h1>
+          <label for="id">ID:</label>
+          <input type="text" id="idEliminar" placeholder="ID de la materia">
+          <button id="eliminarMateria">Eliminar</button>
+      </div>
+
+      <div class="card">
+          <h1>Editar nombre materia</h1>
+          <label for="id">ID:</label>
+          <input type="text" id="idEdit" placeholder="ID de la materia">
+          <label for="Nombre">Nuevo nombre de materia:</label>
+          <input type="text" id="nombreNuevo" placeholder="Nuevo nombre de la materia">
+          <button id="editarMateria">Editar materia</button>
+      </div>
+
+      <div class="card">
+          <h1>Mostrar materia</h1>
+          <label for="id">ID:</label>
+          <input type="text" id="idMostrar" placeholder="ID de la materia">
+      
+          <button id="mostrarMateria">Mostrar materia</button>
+      </div>
+
+      <div id="containerMateria"></div>
+
+    </div>
+
+</body>
+<script>
+//////////////////////////////////////////////////////////////////////////////////////
+//POST
+    document.getElementById('crearMateria').addEventListener('click', function() {
+      const nombreMateria = document.getElementById('nombre').value;
+  
+      fetch('http://localhost:8000/api/materias', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: nombreMateria
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('Materia creada: ' + nombreMateria);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+//////////////////////////////////////////////////////////////////////////////////////
+//DELETE
+    document.getElementById('eliminarMateria').addEventListener('click', function() {
+      const idEliminar = document.getElementById('idEliminar').value;
+  
+      fetch(`http://localhost:8000/api/materias/${idEliminar}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      .then(response => {
+        if (response.status === 404) {
+            alert('Materia no encontrada'); 
+        }
+        else if(response.status === 200){
+          alert('Materia eliminada: ' + idEliminar); // Mensaje de éxito
+
+        }
+    })
+    .then(data => {
+    })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+//////////////////////////////////////////////////////////////////////////////////////
+//PUT
+  document.getElementById('editarMateria').addEventListener('click', function() {
+      const idMateria = document.getElementById('idEdit').value;
+      const nombreNuevo = document.getElementById('nombreNuevo').value;
+
+      fetch(`http://localhost:8000/api/materias/${idMateria}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: nombreNuevo
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('Materia actualizada: ' + nombreNuevo);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+//////////////////////////////////////////////////////////////////////////////////////
+//GET
+document.getElementById('mostrarMateria').addEventListener('click', function() {
+      const idMateriaVer = document.getElementById('idMostrar').value;
+
+      fetch(`http://localhost:8000/api/materias/${idMateriaVer}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Materia no encontrada');
+          }
+          return response.json();
+        })
+        .then(data => {
+
+          const container = document.getElementById("containerMateria");
+          
+          const materia = document.createElement("div");
+         
+          container.innerHTML = '';
+
+          materia.innerHTML=`<div class="materia">                
+            <h4>Materia encontrada</h4>
+            <p>Nombre de la materia: <strong>${data.Name}</strong></p>
+          </div>
+          `;
+
+          container.appendChild(materia);
+          if (data.Name == ""){
+            alert("No se encontro una materia con ese ID")
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('Error: ' + error.message);
+        });
+      });
+  </script>
+
+</html>

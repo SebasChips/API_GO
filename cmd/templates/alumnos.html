@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumnos</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+
+    <header>
+        <a href="alumnos.html">Alumnos</a>
+        <a href="materias.html">Materias</a>
+        <a href="calificaciones.html">Calificaciones</a>
+
+    </header>
+
+    <div class="container">
+
+      <div class="card">
+          <h1>Añadir alumno</h1>
+          <label for="nombre">Nombre:</label>
+          <input type="text" id="nombre" placeholder="Nombre del alumno">
+          <label for="nombre">Grupo:</label>
+          <input type="text" id="grupo" placeholder="Nombre del grupo">
+          <label for="nombre">Email:</label>
+          <input type="email" id="email" placeholder="example@gmail.com">
+          <button id="addAlumno">Crear</button>
+          </div>
+
+      <div class="card">
+          <h1>Eliminar Alumno</h1>
+          <label for="id">ID:</label>
+          <input type="text" id="idEliminar" placeholder="ID del alumno">
+          <button id="eliminarAlumno">Eliminar</button>
+      </div>
+
+      <div class="card">
+          <h1>Editar alumno</h1>
+          <label for="id">ID:</label>
+          <input type="text" id="idEdit" placeholder="ID de el alumno">
+          <label for="email">Nuevo email:</label>
+          <input type="email" id="emailNuevo" placeholder="example@gmail.com">
+          <label for="email">Nuevo grupo:</label>
+          <input type="text" id="grupoNuevo" placeholder="Grupo">
+          <button id="editarAlumno">Editar alumno</button>
+      </div>
+
+      <div class="card">
+          <h1>Mostrar alumno</h1>
+          <label for="id">ID:</label>
+          <input type="text" id="idAlumno" placeholder="ID del alumno">
+      
+          <button id="mostrarAlumno">Mostrar alumno</button>
+      </div>
+      <div class="card">
+        <h1>Mostrar todos los alumnos</h1>
+    
+        <button id="mostrarAlumnosTodos">Mostrar alumnos</button>
+    </div>
+
+      <div id="containerAlumno"></div>
+
+     
+    </div>
+
+</body>
+<script>
+//////////////////////////////////////////////////////////////////////////////////////
+//POST
+    document.getElementById('addAlumno').addEventListener('click', function() {
+      const nombre = document.getElementById('nombre').value;
+      const grupo = document.getElementById('grupo').value;
+      const emailA = document.getElementById('email').value;
+
+  
+      fetch('http://localhost:8000/api/students', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: nombre,
+          group: grupo,
+          email: emailA
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('ALUMNO AGREGADO \nNombre: ' + data.Name +" \nGrupo: "+data.Group );
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+//////////////////////////////////////////////////////////////////////////////////////
+//DELETE
+    document.getElementById('eliminarAlumno').addEventListener('click', function() {
+      const idEliminar = document.getElementById('idEliminar').value;
+  
+      fetch(`http://localhost:8000/api/students/${idEliminar}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      .then(response => {
+        if (response.status === 404) {
+            alert('Alumno no encontrada'); 
+        }
+        else if(response.status === 200){
+          alert('Alumno eliminado: ' + idEliminar); 
+
+        }
+    })
+    .then(data => {
+    })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+//////////////////////////////////////////////////////////////////////////////////////
+//PUT
+  document.getElementById('editarAlumno').addEventListener('click', function() {
+      const idAlumno = document.getElementById('idEdit').value;
+      const grupoNuevo = document.getElementById('grupoNuevo').value;
+      const emailNuevo = document.getElementById('emailNuevo').value;
+
+      fetch(`http://localhost:8000/api/students/${idAlumno}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          group: grupoNuevo,
+          email: emailNuevo
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('Alumno actualizado: \n' + "Grupo: "+grupoNuevo + "\nEmail: " + emailNuevo);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+//////////////////////////////////////////////////////////////////////////////////////
+//GET
+document.getElementById('mostrarAlumno').addEventListener('click', function() {
+      const idAlumno = document.getElementById('idAlumno').value;
+
+      fetch(`http://localhost:8000/api/students/${idAlumno}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Alumno no encontrado');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data.Name)
+          if (data.Name == undefined){
+            alert("No se encontro un alumno con ese ID")
+          }else{
+          const container = document.getElementById("containerAlumno");
+          
+          const alumno = document.createElement("div");
+         
+          container.innerHTML = '';
+          alumno.classList.add("box");
+
+          alumno.innerHTML=`              
+            <p>Nombre del alumno: <strong>${data.Name}</strong></p>
+            <p>Grupo: <strong>${data.Group}</strong></p>
+            <p>email: <strong>${data.Email}</strong></p>
+          `;
+
+          container.appendChild(alumno);
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('Error: ' + error.message);
+        });
+      });
+      
+document.getElementById('mostrarAlumnosTodos').addEventListener('click', function() {
+
+    fetch(`http://localhost:8000/api/students/`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Alumnos no encontrados');
+        }
+        return response.json();
+      })
+      .then(data => {
+
+        const container = document.getElementById("containerAlumno");
+        
+        container.innerHTML = '';
+          
+        for (let i = 0; i < data.length; i++) {
+          const alumno = document.createElement("div");
+          alumno.classList.add("box");
+          
+          alumno.innerHTML = `
+            <p>ID del alumno: <strong>${data[i].Id}</strong></p>
+            <p>Nombre del alumno: <strong>${data[i].Name}</strong></p>
+            <p>Grupo: <strong>${data[i].Group}</strong></p>
+            <p>Email: <strong>${data[i].Email}</strong></p>
+          `;
+          
+          container.appendChild(alumno);
+
+        }
+
+      
+       
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+      });
+    });
+  </script>
+
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calificaciones</title>
+    <link rel="stylesheet" href="../static/styles.css">
+</head>
+<body>
+
+    <header>
+        <a href="alumnos.html">Alumnos</a>
+        <a href="materias.html">Materias</a>
+        <a href="calificaciones.html">Calificaciones</a>
+
+    </header>
+
+    <div class="container">
+
+      <div class="card">
+          <h1>Añadir calificación</h1>
+          <label for="nombre">ID alumno:</label>
+          <input type="text" id="idAlumnoAdd" placeholder="ID Alumno">
+          <label for="nombre">ID materia:</label>
+          <input type="text" id="subjectAdd" placeholder="ID materia">
+          <label for="nombre">Calificación:</label>
+          <input type="text" id="gradeAdd" placeholder="Calificacion">
+
+          <button id="calificar">Calificar</button>
+          </div>
+
+      <div class="card">
+          <h1>Eliminar calificación</h1>
+          <label for="id">ID calificación:</label>
+          <input type="text" id="idEliminar" placeholder="ID de la calificacion">
+          <button id="eliminarCalificacion">Eliminar</button>
+      </div>
+
+      <div class="card">
+          <h1>Editar calificación</h1>
+          <label for="id">ID calificación:</label>
+          <input type="text" id="idEdit" placeholder="ID de la materia">
+          <label for="Nombre">Nueva calificación:</label>
+          <input type="text" id="nuevaCal" placeholder="Nueva calificación">
+          <button id="editarCalificacion">Editar materia</button>
+      </div>
+
+      <div class="card">
+          <h1>Mostrar calificación de alumno</h1>
+          <label for="id">ID:</label>
+          <input type="text" id="idMostrarA" placeholder="ID del alumno">
+          <input type="text" id="idMostrarC" placeholder="ID Calificacion">
+      
+          <button id="mostrarMateria">Mostrar materia</button>
+      </div>
+
+      <div class="card">
+        <h1>Mostrar todas las calificaciones del alumno</h1>
+        <label for="id">ID:</label>
+        <input type="text" id="idMostrarT" placeholder="ID del alumno">    
+        <button id="mostrarMaterias">Mostrar materias</button>
+    </div>
+
+      <div id="containerAlumno"></div>
+
+    </div>
+
+</body>
+<script>
+//////////////////////////////////////////////////////////////////////////////////////
+//POST
+document.getElementById('calificar').addEventListener('click', function() {
+    const idAlumno = document.getElementById('idAlumnoAdd').value;
+    const calificacion = document.getElementById('gradeAdd').value;
+    const idMateria = document.getElementById('subjectAdd').value;
+
+    fetch('http://localhost:8000/api/grades', {  
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+        StudentId: Number(idAlumno),     
+        Grade: parseFloat(calificacion),
+        SubjectsId: Number(idMateria),
+    })
+
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Calificación dada a: ' + idAlumno + "\nMateria: " + idMateria + "\nCalificación: " + calificacion);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+});
+
+//////////////////////////////////////////////////////////////////////////////////////
+//DELETE
+    document.getElementById('eliminarCalificacion').addEventListener('click', function() {
+      const idEliminar = document.getElementById('idEliminar').value;
+  
+      fetch(`http://localhost:8000/api/grades/${idEliminar}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      .then(response => {
+        if (response.status === 404) {
+            alert('Calificación no encontrada'); 
+        }
+        else if(response.status === 200){
+          alert('Calificación eliminada: ' + idEliminar); // Mensaje de éxito
+
+        }
+    })
+    .then(data => {
+    })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+    });
+//////////////////////////////////////////////////////////////////////////////////////
+//PUT
+document.getElementById('editarCalificacion').addEventListener('click', function() {
+    const idCal = document.getElementById('idEdit').value;
+    const calificacionNueva = document.getElementById('nuevaCal').value;
+
+    fetch(`http://localhost:8000/api/grades/${idCal}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        Grade: parseFloat(calificacionNueva)  
+      })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Error en la actualización');
+      }
+      return response.json();
+    })
+    .then(data => {
+      alert('Materia actualizada: ' + calificacionNueva);
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+});
+
+//////////////////////////////////////////////////////////////////////////////////////
+//GET
+document.getElementById('mostrarMateria').addEventListener('click', function() {
+      const idAlumno = document.getElementById('idMostrarA').value;
+      const idCal = document.getElementById('idMostrarC').value;
+
+
+      fetch(`http://localhost:8000/api/grades/${idCal}/student/${idAlumno}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            alert('Calificación no encontrada');
+          }
+          return response.json();
+        })
+        .then(data => {
+
+          const container = document.getElementById("containerAlumno");
+          
+          const materia = document.createElement("div");
+         
+          container.innerHTML = '';
+
+          materia.innerHTML=`<div class="box">      
+            <p>ID estudiante: <strong>${data.StudentId}</strong></p>
+            <p>ID materia: <strong>${data.SubjectsId}</strong></p>                    
+            <p>Calificación: <strong>${data.Grade}</strong></p>
+          </div>
+          `;
+
+          container.appendChild(materia);
+          if (data.Name == ""){
+            alert("No se encontro una materia con ese ID")
+          }
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+      });
+
+
+  
+document.getElementById('mostrarMaterias').addEventListener('click', function() {
+  const idAlumno = document.getElementById('idMostrarT').value;
+
+fetch(`http://localhost:8000/api/grades/student/${idAlumno}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Calificaciones no encontradas');
+    }
+    return response.json();
+  })
+  .then(data => {
+
+    const container = document.getElementById("containerAlumno");
+    
+    container.innerHTML = '';
+      
+    for (let i = 0; i < data.length; i++) {
+      const alumno = document.createElement("div");
+      alumno.classList.add("box");
+      
+      alumno.innerHTML = `
+        <p>ID calificación: <strong>${data[i].Id}</strong></p>
+        <p>ID materia: <strong>${data[i].SubjectsId}</strong></p>
+        <p>Calificación: <strong>${data[i].Grade}</strong></p>
+      `;
+      
+      container.appendChild(alumno);
+
+    }
+
+  
+   
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+    alert('Error: ' + error.message);
+  });
+});
+  </script>
+
+</html>
