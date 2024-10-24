@@ -13,7 +13,7 @@ This is a Go API project for managing scholar control of students. It uses MySQL
 
 - Student management with CRUD (Create, Read, Update, Delete) operations.
 - Web interface to interact with the API.
-- Easy deployment using Docker of the.
+- Easy deployment using Docker for the database.
 
 ## Requirements
 - [Docker](https://www.docker.com/get-started)
